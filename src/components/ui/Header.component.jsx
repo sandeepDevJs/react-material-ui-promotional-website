@@ -24,7 +24,7 @@ export default function ElevateAppBar(props) {
 			<ElevationScroll {...props}>
 				<AppBar>
 					<Toolbar>
-						<Typography variant="h6">Scroll to Elevate App Bar</Typography>
+						<Typography variant="h3">Arc Development</Typography>
 					</Toolbar>
 				</AppBar>
 			</ElevationScroll>
