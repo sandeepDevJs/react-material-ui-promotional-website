@@ -7,6 +7,11 @@ import { Tabs, Tab, Button, Menu, MenuItem } from "@material-ui/core";
 
 import useScrollTrigger from "@material-ui/core/useScrollTrigger";
 import { makeStyles } from "@material-ui/styles";
+import { useTheme } from "@material-ui/core/styles";
+import useMediaQuery from "@material-ui/core/useMediaQuery";
+import SwipeableDrawer from "@material-ui/core/SwipeableDrawer";
+import IconButton from "@material-ui/core/IconButton";
+import MenuIcon from "@material-ui/icons/Menu";
 
 import logo from "../../assets/logo.svg";
 
@@ -26,6 +31,12 @@ const useStyles = makeStyles((theme) => ({
 	toolbarMargin: {
 		...theme.mixins.toolbar,
 		marginBottom: "3em",
+		[theme.breakpoints.down("md")]: {
+			marginBottom: "2em",
+		},
+		[theme.breakpoints.down("xs")]: {
+			marginBottom: "1.25em",
+		},
 	},
 
 	logoContainer: {
@@ -37,6 +48,12 @@ const useStyles = makeStyles((theme) => ({
 
 	logo: {
 		height: "8em",
+		[theme.breakpoints.down("md")]: {
+			height: "7em",
+		},
+		[theme.breakpoints.down("xs")]: {
+			height: "5.5em",
+		},
 	},
 
 	tabContainer: {
@@ -70,6 +87,18 @@ const useStyles = makeStyles((theme) => ({
 			opacity: 1,
 		},
 	},
+
+	drawerIconContainer: {
+		marginLeft: "auto",
+		"&:hover": {
+			backgroundColor: "transparent",
+		},
+	},
+
+	drawerIcon: {
+		height: "50px",
+		width: "50px",
+	},
 }));
 
 export default function ElevateAppBar(props) {
@@ -78,6 +107,12 @@ export default function ElevateAppBar(props) {
 	const [anchorEl, setAnchorEl] = useState(null);
 	const [open, setopen] = useState(false);
 	const [selectedIndex, setselectedIndex] = useState(0);
+	const [openDrawer, setopenDrawer] = useState(false);
+
+	const IOS = process.browser && /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+	const theme = useTheme();
+	const matches = useMediaQuery(theme.breakpoints.down("md"));
 
 	const handleChange = (e, value) => {
 		setvalue(value);
@@ -173,6 +208,104 @@ export default function ElevateAppBar(props) {
 		}
 	}, [value]);
 
+	const tabs = (
+		<React.Fragment>
+			<Tabs
+				value={value}
+				onChange={handleChange}
+				className={classes.tabContainer}
+				indicatorColor="primary"
+			>
+				<Tab className={classes.tab} component={Link} to="/" label="Home" />
+				<Tab
+					aria-owns={anchorEl ? "simple-menu" : undefined}
+					aria-haspopup={anchorEl ? "true" : undefined}
+					className={classes.tab}
+					component={Link}
+					to="/services"
+					label="Services"
+					onMouseOver={handleClick}
+				/>
+				<Tab
+					className={classes.tab}
+					component={Link}
+					to="/revolution"
+					label="The Revolution"
+				/>
+
+				<Tab
+					className={classes.tab}
+					component={Link}
+					to="/about"
+					label="About Us"
+				/>
+				<Tab
+					className={classes.tab}
+					component={Link}
+					to="/contact"
+					label="Contact Us"
+				/>
+			</Tabs>
+			<Button
+				variant="contained"
+				color="secondary"
+				component={Link}
+				to="estimate"
+				className={classes.button}
+			>
+				Free Estimate
+			</Button>
+
+			<Menu
+				id="simple-menu"
+				anchorEl={anchorEl}
+				open={open}
+				onClose={handleClose}
+				MenuListProps={{ onMouseLeave: handleClose }}
+				elevation={0}
+				classes={{ paper: classes.menu }}
+			>
+				{menuOptions.map((option, i) => (
+					<MenuItem
+						key={option}
+						component={Link}
+						to={option.link}
+						classes={{ root: classes.menuItem }}
+						onClick={(e) => {
+							handleMenuClick(e, i);
+							setvalue(1);
+							handleClose();
+						}}
+						selected={i === selectedIndex && value === 1}
+					>
+						{option.name}
+					</MenuItem>
+				))}
+			</Menu>
+		</React.Fragment>
+	);
+
+	const drawer = (
+		<React.Fragment>
+			<SwipeableDrawer
+				disableBackdropTransition={!IOS}
+				disableDiscovery={IOS}
+				open={openDrawer}
+				onClose={() => setopenDrawer(false)}
+				onOpen={() => setopenDrawer(true)}
+			>
+				EXAMPLE DRAWER
+			</SwipeableDrawer>
+			<IconButton
+				className={classes.drawerIconContainer}
+				onClick={() => setopenDrawer(!openDrawer)}
+				disableRipple
+			>
+				<MenuIcon className={classes.drawerIcon} />
+			</IconButton>
+		</React.Fragment>
+	);
+
 	return (
 		<React.Fragment>
 			<ElevationScroll {...props}>
@@ -187,82 +320,8 @@ export default function ElevateAppBar(props) {
 						>
 							<img className={classes.logo} src={logo} alt="company logo" />
 						</Button>
-						<Tabs
-							value={value}
-							onChange={handleChange}
-							className={classes.tabContainer}
-							indicatorColor="primary"
-						>
-							<Tab
-								className={classes.tab}
-								component={Link}
-								to="/"
-								label="Home"
-							/>
-							<Tab
-								aria-owns={anchorEl ? "simple-menu" : undefined}
-								aria-haspopup={anchorEl ? "true" : undefined}
-								className={classes.tab}
-								component={Link}
-								to="/services"
-								label="Services"
-								onMouseOver={handleClick}
-							/>
-							<Tab
-								className={classes.tab}
-								component={Link}
-								to="/revolution"
-								label="The Revolution"
-							/>
-							<Tab
-								className={classes.tab}
-								component={Link}
-								to="/about"
-								label="About Us"
-							/>
-							<Tab
-								className={classes.tab}
-								component={Link}
-								to="/contact"
-								label="Contact Us"
-							/>
-						</Tabs>
-						<Button
-							variant="contained"
-							color="secondary"
-							component={Link}
-							to="estimate"
-							className={classes.button}
-						>
-							Free Estimate
-						</Button>
-
-						<Menu
-							id="simple-menu"
-							anchorEl={anchorEl}
-							open={open}
-							onClose={handleClose}
-							MenuListProps={{ onMouseLeave: handleClose }}
-							elevation={0}
-							classes={{ paper: classes.menu }}
-						>
-							{menuOptions.map((option, i) => (
-								<MenuItem
-									key={option}
-									component={Link}
-									to={option.link}
-									classes={{ root: classes.menuItem }}
-									onClick={(e) => {
-										handleMenuClick(e, i);
-										setvalue(1);
-										handleClose();
-									}}
-									selected={i === selectedIndex && value === 1}
-								>
-									{option.name}
-								</MenuItem>
-							))}
-						</Menu>
+						{!matches && tabs}
+						{matches && drawer}
 					</Toolbar>
 				</AppBar>
 			</ElevationScroll>
